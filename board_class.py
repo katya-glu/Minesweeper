@@ -18,6 +18,10 @@ class Board:
         self.num_of_mines = num_of_mines
         self.tile_width = tile_width
         self.tile_height = tile_height
+        self.delta_from_left_x = 0
+        self.delta_from_top_y = 30
+        self.window_width = 0
+        self.window_height = 0
         self.window = self.window_init()
         self.mines_array = np.zeros((num_of_tiles_y, num_of_tiles_x), dtype=int)
         self.neighbours_array = np.zeros((num_of_tiles_y, num_of_tiles_x), dtype=int)
@@ -26,11 +30,13 @@ class Board:
         self.board_array = np.zeros((num_of_tiles_y, num_of_tiles_x), dtype=int)
         self.board_for_display = np.zeros((num_of_tiles_y, num_of_tiles_x), dtype=int)
         self.hit_mine = False
+        self.game_over = False
+        self.win = False
 
     def window_init(self):
-        window_width = self.num_of_tiles_x * self.tile_width
-        window_height = self.num_of_tiles_y * self.tile_width
-        window = pygame.display.set_mode((window_width, window_height))
+        self.window_width = self.num_of_tiles_x * self.tile_width + self.delta_from_left_x
+        self.window_height = self.num_of_tiles_y * self.tile_width + self.delta_from_top_y
+        window = pygame.display.set_mode((self.window_width, self.window_height))
         pygame.display.set_caption("Minesweeper")
         return window
 
@@ -55,8 +61,8 @@ class Board:
         self.board_array = self.neighbours_array + self.mine_value * self.mines_array
 
     def pixel_xy_to_tile_xy(self, pixel_x, pixel_y):
-        tile_x = pixel_x // self.tile_width
-        tile_y = pixel_y // self.tile_height
+        tile_x = (pixel_x - self.delta_from_left_x) // self.tile_width
+        tile_y = (pixel_y - self.delta_from_top_y) // self.tile_height
         return tile_x, tile_y
 
     # function checks whether the input is valid - click should be on a closed tile, left click opens tile, right click
@@ -104,7 +110,10 @@ class Board:
             elif right_click:                                                        # right click
                 self.flags_array[tile_y][tile_x] = 1 - self.flags_array[tile_y][tile_x]     # toggle flag on/off
 
-    # function updates board for display - the sprite index in tiles list is inserted into each tile
+    """
+    Function updates board for display - the appropriate sprite index in tiles list is updated in board_for_display,
+    based on the shown array
+    """
     def update_board_for_display(self):
         for display_tile_y in range(self.num_of_tiles_y):
             for display_tile_x in range(self.num_of_tiles_x):
@@ -123,9 +132,21 @@ class Board:
 
     def display_game_board(self):
         for tile_y in range(self.num_of_tiles_y):
-            tile_pos_y = tile_y * self.tile_height
+            tile_pos_y = tile_y * self.tile_height + self.delta_from_top_y
             for tile_x in range(self.num_of_tiles_x):
                 tile_pos_x = tile_x * self.tile_width
                 curr_elem = self.board_for_display[tile_y][tile_x]
                 self.window.blit(self.tiles[curr_elem], (tile_pos_x, tile_pos_y))
+
+    def is_game_over(self):
+        font = pygame.font.SysFont("comicsans", 40)
+        if self.hit_mine:
+            self.game_over = True
+            lose_text = font.render("You lose", True, (255, 0, 0))
+            self.window.blit(lose_text, ((self.window_width - lose_text.get_width())/2, self.window_height/2))
+        if (self.flags_array == self.mines_array).all():
+            self.game_over = True
+            self.win = True
+            win_text = font.render("You win", True, (255, 0, 0))
+            self.window.blit(win_text, ((self.window_width - win_text.get_width()) / 2, self.window_height / 2))
 

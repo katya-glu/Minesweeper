@@ -8,7 +8,7 @@ pygame.init()
 # Create an instance of the HighScore class
 #high_scores = plot_high_score_class.HighScore(True, 10, [10, 5], [True, False], "high_scores.pkl")
 
-game_board = board_class.Board()
+game_board = board_class.Board(8,8,10)
 game_board.place_objects_in_array()
 game_board.count_num_of_touching_mines()
 LEFT = 1
@@ -38,6 +38,7 @@ while run:
 
     game_board.update_board_for_display()
     game_board.display_game_board()
+    game_board.is_game_over()
     pygame.display.update()
 
 
