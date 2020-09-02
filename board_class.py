@@ -10,9 +10,10 @@ class Board:
              pygame.image.load("three.png"), pygame.image.load("four.png"), pygame.image.load("five.png"),
              pygame.image.load("six.png"), pygame.image.load("seven.png"), pygame.image.load("eight.png"),
              pygame.image.load("mine.png"), pygame.image.load("block.png"), pygame.image.load("flagged.png"),
-             pygame.image.load("mine_red.png"), pygame.image.load("wrongly_flagged.png")]
+             pygame.image.load("mine_red.png"), pygame.image.load("wrongly_flagged.png"),
+             pygame.image.load("new_game_unpressed.png")]
 
-    def __init__(self, num_of_tiles_x=30, num_of_tiles_y=16, num_of_mines=99, tile_width=16, tile_height=16):
+    def __init__(self, num_of_tiles_x=8, num_of_tiles_y=8, num_of_mines=10, tile_width=16, tile_height=16):
         self.num_of_tiles_x = num_of_tiles_x
         self.num_of_tiles_y = num_of_tiles_y
         self.num_of_mines = num_of_mines
@@ -32,6 +33,7 @@ class Board:
         self.hit_mine = False
         self.game_over = False
         self.win = False
+        self.new_button_icon = self.tiles[14]
 
     def window_init(self):
         self.window_width = self.num_of_tiles_x * self.tile_width + self.delta_from_left_x
@@ -69,6 +71,8 @@ class Board:
     # toggles flag display
     def is_valid_input(self, tile_x, tile_y, left_click, right_click):
         if left_click and right_click:          # left click together with right click is not allowed at this stage
+            return False
+        if tile_x < 0 or tile_y < 0:
             return False
         if self.shown_array[tile_y][tile_x] == 1:
             return False
@@ -143,10 +147,24 @@ class Board:
         if self.hit_mine:
             self.game_over = True
             lose_text = font.render("You lose", True, (255, 0, 0))
-            self.window.blit(lose_text, ((self.window_width - lose_text.get_width())/2, self.window_height/2))
+            self.window.blit(lose_text, ((self.window_width - lose_text.get_width())//2, self.window_height//2))
         if (self.flags_array == self.mines_array).all():
             self.game_over = True
             self.win = True
             win_text = font.render("You win", True, (255, 0, 0))
-            self.window.blit(win_text, ((self.window_width - win_text.get_width()) / 2, self.window_height / 2))
+            self.window.blit(win_text, ((self.window_width - win_text.get_width()) // 2, self.window_height // 2))
 
+    # function draws new game button in the window
+    def draw_new_game_button(self):
+        self.window.blit(self.new_button_icon, ((self.window_width - self.new_button_icon.get_width())/2, 2))
+
+    def is_mouse_over_new_game_button(self, mouse_position):
+        new_game_button_x = (self.window_width - self.new_button_icon.get_width())//2
+        new_game_button_y = 2
+        new_game_button_width = new_game_button_x + self.new_button_icon.get_width()
+        new_game_button_height = new_game_button_y + self.new_button_icon.get_height()
+        if mouse_position[0] > new_game_button_x and mouse_position[0] < new_game_button_width:
+            if mouse_position[1] > new_game_button_y and mouse_position[1] < new_game_button_height:
+                return True
+        else:
+            return False
