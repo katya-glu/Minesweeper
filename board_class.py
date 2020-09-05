@@ -10,10 +10,9 @@ class Board:
              pygame.image.load("three.png"), pygame.image.load("four.png"), pygame.image.load("five.png"),
              pygame.image.load("six.png"), pygame.image.load("seven.png"), pygame.image.load("eight.png"),
              pygame.image.load("mine.png"), pygame.image.load("block.png"), pygame.image.load("flagged.png"),
-             pygame.image.load("mine_red.png"), pygame.image.load("wrongly_flagged.png"),
              pygame.image.load("new_game_unpressed.png")]
 
-    def __init__(self, num_of_tiles_x=8, num_of_tiles_y=8, num_of_mines=10, tile_width=16, tile_height=16):
+    def __init__(self, num_of_tiles_x=8, num_of_tiles_y=8, tile_width=16, tile_height=16, num_of_mines=10):
         self.num_of_tiles_x = num_of_tiles_x
         self.num_of_tiles_y = num_of_tiles_y
         self.num_of_mines = num_of_mines
@@ -24,16 +23,21 @@ class Board:
         self.window_width = 0
         self.window_height = 0
         self.window = self.window_init()
-        self.mines_array = np.zeros((num_of_tiles_y, num_of_tiles_x), dtype=int)
-        self.neighbours_array = np.zeros((num_of_tiles_y, num_of_tiles_x), dtype=int)
-        self.shown_array = np.zeros((num_of_tiles_y, num_of_tiles_x), dtype=int)
-        self.flags_array = np.zeros((num_of_tiles_y, num_of_tiles_x), dtype=int)
-        self.board_array = np.zeros((num_of_tiles_y, num_of_tiles_x), dtype=int)
-        self.board_for_display = np.zeros((num_of_tiles_y, num_of_tiles_x), dtype=int)
+        self.board_init()
+
+
+    def board_init(self):
         self.hit_mine = False
         self.game_over = False
         self.win = False
-        self.new_button_icon = self.tiles[14]
+        self.shown_array = np.zeros((self.num_of_tiles_y, self.num_of_tiles_x), dtype=int)
+        self.flags_array = np.zeros((self.num_of_tiles_y, self.num_of_tiles_x), dtype=int)
+        self.mines_array = np.zeros((self.num_of_tiles_y, self.num_of_tiles_x), dtype=int)
+        self.neighbours_array = np.zeros((self.num_of_tiles_y, self.num_of_tiles_x), dtype=int)
+        self.board_array = np.zeros((self.num_of_tiles_y, self.num_of_tiles_x), dtype=int)
+        self.board_for_display = np.zeros((self.num_of_tiles_y, self.num_of_tiles_x), dtype=int)
+        self.new_button_icon = self.tiles[12]
+
 
     def window_init(self):
         self.window_width = self.num_of_tiles_x * self.tile_width + self.delta_from_left_x
@@ -41,6 +45,8 @@ class Board:
         window = pygame.display.set_mode((self.window_width, self.window_height))
         pygame.display.set_caption("Minesweeper")
         return window
+
+
 
     # function shuffles an array in order to randomly generate locations of objects in the array
     def place_objects_in_array(self):
