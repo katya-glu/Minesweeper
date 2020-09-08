@@ -76,8 +76,8 @@ class Board:
     # function checks whether the input is valid - click should be on a closed tile, left click opens tile, right click
     # toggles flag display
     def is_valid_input(self, tile_x, tile_y, left_click, right_click):
-        if left_click and right_click:          # left click together with right click is not allowed at this stage
-            return False
+        if left_click and right_click:
+            return True
         if tile_x < 0 or tile_y < 0:
             return False
         if self.shown_array[tile_y][tile_x] == 1:
@@ -110,8 +110,11 @@ class Board:
 
     # function updates game state upon receiving valid input
     def update_game_state(self, tile_x, tile_y, left_click, right_click):
-        if self.is_valid_input(tile_x, tile_y, left_click, right_click):  # shown_array[tile_y][tile_x] != 1
-            if left_click and self.board_array[tile_y][tile_x] != 0:
+        if self.is_valid_input(tile_x, tile_y, left_click, right_click): # shown_array[tile_y][tile_x] != 1
+            if left_click and right_click:
+                print('left and right click: not implemented')
+                pass
+            elif left_click and self.board_array[tile_y][tile_x] != 0:
                 self.shown_array[tile_y][tile_x] = 1
                 if self.board_array[tile_y][tile_x] == 9:
                     self.hit_mine = True
@@ -119,6 +122,8 @@ class Board:
                 self.flood_fill(tile_x, tile_y)
             elif right_click:                                                        # right click
                 self.flags_array[tile_y][tile_x] = 1 - self.flags_array[tile_y][tile_x]     # toggle flag on/off
+
+
 
     """
     Function updates board for display - the appropriate sprite index in tiles list is updated in board_for_display,

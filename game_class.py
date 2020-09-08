@@ -12,12 +12,14 @@ pygame.init()
 game_board = board_class.Board()
 game_board.place_objects_in_array()
 game_board.count_num_of_touching_mines()
+left_pressed = False
+right_pressed = False
 LEFT = 1
 RIGHT = 3
 run = True
 while run:
-    only_left_click = False
-    only_right_click = False
+    left_released = False
+    right_released = False
     for event in pygame.event.get():
         mouse_position = pygame.mouse.get_pos()
 
@@ -28,22 +30,41 @@ while run:
             game_board.board_init()
             game_board.place_objects_in_array()
             game_board.count_num_of_touching_mines()
+            left_pressed = False
+            right_pressed = False
 
         elif game_board.hit_mine:
             pass
 
-        elif event.type == pygame.MOUSEBUTTONUP and (event.button == LEFT or event.button == RIGHT):
+        elif event.type == pygame.MOUSEBUTTONDOWN and (event.button == LEFT or event.button == RIGHT):
             if event.button == LEFT:
-                only_left_click = True
-            elif event.button == RIGHT:
-                only_right_click = True
+                left_pressed = True
+            if event.button == RIGHT:
+                right_pressed = True
+
+        elif event.type == pygame.MOUSEBUTTONUP and (event.button == LEFT or event.button == RIGHT):
+            if left_pressed and not right_pressed:
+                left_released = True
+                #print("only left released")
+            if right_pressed and not left_pressed:
+                right_released = True
+                #print("only right released")
+            if right_pressed and left_pressed:
+                left_released = True
+                right_released = True
+                #print("both released")
+
             pixel_xy = event.pos
             pixel_x = event.pos[0]
             pixel_y = event.pos[1]
             tile_xy = game_board.pixel_xy_to_tile_xy(pixel_x, pixel_y)
             tile_x = tile_xy[0]
             tile_y = tile_xy[1]
-            game_board.update_game_state(tile_x, tile_y, only_left_click, only_right_click)
+
+            if left_pressed or right_pressed:
+                game_board.update_game_state(tile_x, tile_y, left_released, right_released)
+                left_pressed = False
+                right_pressed = False
 
 
     game_board.update_board_for_display()
