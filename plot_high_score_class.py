@@ -1,5 +1,6 @@
 import pickle
 from tkinter import *
+from tkinter import messagebox
 
 class HighScore:
 
@@ -25,7 +26,7 @@ class HighScore:
         # name entered by user
         self.player_name = None
 
-    def add_score(self, new_score):
+    def add_score_to_score_db(self, new_score):
         # function receives new_score in the form [name, score], inserts it into the score_db in the right order
         scores_db = self.scores_db
         # add to empty list
@@ -92,7 +93,7 @@ class HighScore:
     def display_high_scores_window(self): # TODO: add empty high scores string
         # function creates a list for display in Tkinter window
         self.window_open = True
-        high_scores_window = Toplevel()
+        high_scores_window = Tk()
         high_scores_window.title("High scores")
 
         for i in range(len(self.scores_db)):
@@ -116,8 +117,13 @@ class HighScore:
                                         width=self.score_label_width, height=self.label_height, anchor=E)
                     score_label.grid(row=i+1, column=j+1, sticky=E, padx=self.pad_value, pady=self.pad_value)
 
+        def on_closing():
+            #if messagebox.askokcancel("Quit", "Do you want to quit?"):
+                self.window_open = False
+                high_scores_window.destroy()
+
+        high_scores_window.protocol("WM_DELETE_WINDOW", on_closing)
         high_scores_window.mainloop()
-        self.window_open = False
 
     def is_window_open(self):
         return self.window_open
@@ -131,8 +137,7 @@ class HighScore:
 
         def get_user_name_str():
             self.player_name = player_name.get()
-            my_label = Label(name_req_window, text=str(self.player_name))
-            my_label.pack()
+            name_req_window.destroy()
 
         get_user_name_button = Button(name_req_window, text="OK", command=get_user_name_str)
         get_user_name_button.pack()
@@ -149,3 +154,9 @@ class HighScore:
         with open(self.filename, "rb") as score_file:
             self.scores_db = pickle.load(score_file)
             return self.scores_db
+
+    def get_user_name_and_save_to_file(self, score):
+        self.get_user_name()
+        self.scores_db = self.add_score_to_score_db([self.player_name, score])
+        self.save_scores_to_file()
+

@@ -1,7 +1,7 @@
 import numpy as np
 import pygame
 import time
-#pygame.init()
+from plot_high_score_class import HighScore
 
 
 class Board:
@@ -48,6 +48,7 @@ class Board:
         self.hit_mine = False
         self.game_over = False
         self.win = False
+        self.add_score = False
         self.game_started = False
         self.game_start_time = 0
         self.time = 0
@@ -211,10 +212,11 @@ class Board:
             self.window.blit(lose_text, ((self.window_width - lose_text.get_width())//2, self.window_height//2))
         if (self.flags_array == self.mines_array).all():
             self.game_over = True
-            self.win = True
             win_text = font.render("You win", True, (255, 0, 0))
             self.window.blit(win_text, ((self.window_width - win_text.get_width()) // 2, self.window_height // 2))
-
+            if not self.win:
+                self.win = True
+                self.add_score = True
 
     def is_mouse_over_new_game_button(self, mouse_position):
         # function decides whether the mouse is located over the new game button

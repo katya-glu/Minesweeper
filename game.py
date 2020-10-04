@@ -1,16 +1,16 @@
 from plot_high_score_class import HighScore
 from tkinter import *
+from tkinter import messagebox
 from Board import Board
 import pygame
 import time
 pygame.init()
 
-# TODO: update high scores from game class (win)
 
 # board size constants
 num_of_tiles_x_small_board = 8
 num_of_tiles_y_small_board = 8
-num_of_mines_small_board = 10
+num_of_mines_small_board = 2
 
 num_of_tiles_x_medium_board = 13
 num_of_tiles_y_medium_board = 15
@@ -57,10 +57,15 @@ def open_opening_window():   # TODO: add comments
         main(num_of_tiles_x, num_of_tiles_y, num_of_mines)
         open_opening_window()
 
-    def open_high_scores():
+    def open_high_scores():   # TODO: highscore window to contain 3 tabs for HS of all board sizes
+        print(high_scores.is_window_open())
         if not high_scores.is_window_open():
             high_scores.load_scores_from_file()
             high_scores.display_high_scores_window()
+
+    def on_closing():
+        if messagebox.askokcancel("Quit", "Do you want to quit?"):
+            opening_window.destroy()
 
     start_game_button = Button(opening_window, text="Start game", command=start_new_game)
     start_game_button.pack()
@@ -68,8 +73,15 @@ def open_opening_window():   # TODO: add comments
     high_scores_button = Button(opening_window, text="High scores", command=open_high_scores)
     high_scores_button.pack()
 
-    mainloop()
+    opening_window.protocol("WM_DELETE_WINDOW", on_closing)
+    opening_window.mainloop()
 
+def add_high_score(game_board, score):
+    high_scores = HighScore(False, 10, [10, 5], [True, False], "high_scores.pkl")
+    high_scores.load_scores_from_file()
+    high_scores.get_user_name_and_save_to_file(score)
+    high_scores.display_high_scores_window()
+    game_board.add_score = False
 
 def main(num_of_tiles_x, num_of_tiles_y, num_of_mines):  # TODO: add comments
     game_board = Board(num_of_tiles_x, num_of_tiles_y, num_of_mines)
@@ -142,13 +154,15 @@ def main(num_of_tiles_x, num_of_tiles_y, num_of_mines):  # TODO: add comments
 
         game_board.update_board_for_display()
         game_board.display_game_board()
+        if game_board.add_score:        # TODO: fix bug - when pygame and highscore windows are open, if X is pressed in pygame win, all windows get stuck.
+            # TODO: Detect click outside window from display HS func
+            add_high_score(game_board, game_board.time)
         game_board.is_game_over()
         game_board.update_clock()
         pygame.display.update()
 
 
     pygame.quit()
-    print("quitting")
 
 
 open_opening_window()
