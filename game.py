@@ -10,7 +10,7 @@ pygame.init()
 # board size constants
 num_of_tiles_x_small_board = 8
 num_of_tiles_y_small_board = 8
-num_of_mines_small_board = 2
+num_of_mines_small_board = 10
 
 num_of_tiles_x_medium_board = 13
 num_of_tiles_y_medium_board = 15
@@ -49,16 +49,20 @@ def open_opening_window():   # TODO: add comments
 
     def start_new_game():
         board_size_str = board_size.get()
+        size_index = 0
+        for mode in MODES:
+            if board_size_str == mode[0]:
+                size_index = MODES.index(mode)
+
         board_size_and_num_of_mines = get_board_size(board_size_str)
         num_of_tiles_x = board_size_and_num_of_mines[0]
         num_of_tiles_y = board_size_and_num_of_mines[1]
         num_of_mines = board_size_and_num_of_mines[2]
         opening_window.destroy()
-        main(num_of_tiles_x, num_of_tiles_y, num_of_mines)
+        main(size_index, num_of_tiles_x, num_of_tiles_y, num_of_mines)
         open_opening_window()
 
-    def open_high_scores():   # TODO: highscore window to contain 3 tabs for HS of all board sizes
-        print(high_scores.is_window_open())
+    def open_high_scores():
         if not high_scores.is_window_open():
             high_scores.load_scores_from_file()
             high_scores.display_high_scores_window()
@@ -76,15 +80,13 @@ def open_opening_window():   # TODO: add comments
     opening_window.protocol("WM_DELETE_WINDOW", on_closing)
     opening_window.mainloop()
 
-def add_high_score(game_board, score):
+def add_high_score(game_board, score, size_index):
     high_scores = HighScore(False, 10, [10, 5], [True, False], "high_scores.pkl")
-    high_scores.load_scores_from_file()
-    high_scores.get_user_name_and_save_to_file(score)
-    high_scores.display_high_scores_window()
+    high_scores.add_new_high_score(score, size_index)
     game_board.add_score = False
 
-def main(num_of_tiles_x, num_of_tiles_y, num_of_mines):  # TODO: add comments
-    game_board = Board(num_of_tiles_x, num_of_tiles_y, num_of_mines)
+def main(size_index, num_of_tiles_x, num_of_tiles_y, num_of_mines):  # TODO: add comments
+    game_board = Board(size_index, num_of_tiles_x, num_of_tiles_y, num_of_mines)
     game_board.place_objects_in_array()
     game_board.count_num_of_touching_mines()
     left_pressed = False
@@ -156,7 +158,7 @@ def main(num_of_tiles_x, num_of_tiles_y, num_of_mines):  # TODO: add comments
         game_board.display_game_board()
         if game_board.add_score:        # TODO: fix bug - when pygame and highscore windows are open, if X is pressed in pygame win, all windows get stuck.
             # TODO: Detect click outside window from display HS func
-            add_high_score(game_board, game_board.time)
+            add_high_score(game_board, game_board.time, game_board.size_index)
         game_board.is_game_over()
         game_board.update_clock()
         pygame.display.update()

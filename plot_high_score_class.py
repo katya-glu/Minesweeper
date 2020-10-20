@@ -1,10 +1,15 @@
 import pickle
 from tkinter import *
-from tkinter import messagebox
+from tkinter import ttk
 
 class HighScore:
 
-    def __init__(self, order_high_to_low, score_lines_num, column_width, align_left, filename, scores_db=[]):
+    # Frame variables
+    small_frame_index = 0
+    medium_frame_index = 1
+    large_frame_index = 2
+
+    def __init__(self, order_high_to_low, score_lines_num, column_width, align_left, filename, scores_db = [[],[],[]]):
         self.order_high_to_low = order_high_to_low
         self.score_lines_num = score_lines_num
         self.column_width = column_width
@@ -26,9 +31,9 @@ class HighScore:
         # name entered by user
         self.player_name = None
 
-    def add_score_to_score_db(self, new_score):
+    def add_score_to_score_db(self, new_score, size_index):
         # function receives new_score in the form [name, score], inserts it into the score_db in the right order
-        scores_db = self.scores_db
+        scores_db = self.scores_db[size_index]
         # add to empty list
         if not scores_db:
             scores_db.insert(0, new_score)
@@ -71,13 +76,15 @@ class HighScore:
 
         return scores_db
 
-    def print_scores(self):
-        if not self.scores_db:
+    def print_scores(self, size_index):
+        curr_score_db = self.scores_db[size_index]
+        if not curr_score_db:
             print("Empty list")
             return
+
         score_string = ""
-        for i in range(len(self.scores_db)):
-            curr_row = self.scores_db[i]
+        for i in range(len(curr_score_db)):
+            curr_row = curr_score_db[i]
             score_string += "{0:02d} |".format(i+1)
             for j in range(len(curr_row)):
                 element = str(curr_row[j])
@@ -90,37 +97,62 @@ class HighScore:
 
         print(score_string)
 
+    def prepare_high_scores_for_display(self, frame, frame_index):
+        # display this if there are no high scores
+        if not self.scores_db[frame_index]:
+            empty_label = Label(frame, text="No high scores")
+            empty_label.pack()
+
+        for row in range(len(self.scores_db[frame_index])):
+            curr_row = self.scores_db[frame_index][row]
+            # RANK
+            rank = "{0:02d}".format(row+1)
+            rank_label = Label(frame, text=rank, bg=self.background_color, fg=self.foreground_color, font=self.font,
+                               width=self.rank_label_width, height=self.label_height)
+            rank_label.grid(row=row+1, column=0, padx=self.pad_value, pady=self.pad_value)
+
+            for column in range(len(curr_row)):
+                element = str(curr_row[column])
+                if column == 0:
+                    # NAME
+                    name_label = Label(frame, text=str(element), bg=self.background_color, fg=self.foreground_color, font=self.font,
+                                       width=self.name_label_width, height=self.label_height, anchor=W)
+                    name_label.grid(row=row+1, column=column+1, sticky=W, padx=self.pad_value, pady=self.pad_value)
+                else:
+                    # SCORE
+                    score_label = Label(frame, text=str(element), bg=self.background_color, fg=self.foreground_color, font=self.font,
+                                        width=self.score_label_width, height=self.label_height, anchor=E)
+                    score_label.grid(row=row+1, column=column+1, sticky=E, padx=self.pad_value, pady=self.pad_value)
+
+
     def display_high_scores_window(self): # TODO: add empty high scores string
         # function creates a list for display in Tkinter window
         self.window_open = True
         high_scores_window = Tk()
         high_scores_window.title("High scores")
 
-        for i in range(len(self.scores_db)):
-            curr_row = self.scores_db[i]
-            # RANK
-            rank = "{0:02d}".format(i+1)
-            rank_label = Label(high_scores_window, text=rank, bg=self.background_color, fg=self.foreground_color, font=self.font,
-                               width=self.rank_label_width, height=self.label_height)
-            rank_label.grid(row=i+1, column=0, padx=self.pad_value, pady=self.pad_value)
+        my_notebook = ttk.Notebook(high_scores_window)
+        my_notebook.pack()
 
-            for j in range(len(curr_row)):
-                element = str(curr_row[j])
-                if j == 0:
-                    # NAME
-                    name_label = Label(high_scores_window, text=str(element), bg=self.background_color, fg=self.foreground_color, font=self.font,
-                                       width=self.name_label_width, height=self.label_height, anchor=W)
-                    name_label.grid(row=i+1, column=j+1, sticky=W, padx=self.pad_value, pady=self.pad_value)
-                else:
-                    # SCORE
-                    score_label = Label(high_scores_window, text=str(element), bg=self.background_color, fg=self.foreground_color, font=self.font,
-                                        width=self.score_label_width, height=self.label_height, anchor=E)
-                    score_label.grid(row=i+1, column=j+1, sticky=E, padx=self.pad_value, pady=self.pad_value)
+        small_frame = Frame(my_notebook)
+        medium_frame = Frame(my_notebook)
+        large_frame = Frame(my_notebook)
+
+        small_frame.pack(fill="both", expand=1)
+        medium_frame.pack(fill="both", expand=1)
+        large_frame.pack(fill="both", expand=1)
+
+        my_notebook.add(small_frame, text="Small")
+        my_notebook.add(medium_frame, text="Medium")
+        my_notebook.add(large_frame, text="Large")
+
+        self.prepare_high_scores_for_display(small_frame, self.small_frame_index)
+        self.prepare_high_scores_for_display(medium_frame, self.medium_frame_index)
+        self.prepare_high_scores_for_display(large_frame, self.large_frame_index)
 
         def on_closing():
-            #if messagebox.askokcancel("Quit", "Do you want to quit?"):
-                self.window_open = False
-                high_scores_window.destroy()
+            self.window_open = False
+            high_scores_window.destroy()
 
         high_scores_window.protocol("WM_DELETE_WINDOW", on_closing)
         high_scores_window.mainloop()
@@ -155,8 +187,11 @@ class HighScore:
             self.scores_db = pickle.load(score_file)
             return self.scores_db
 
-    def get_user_name_and_save_to_file(self, score):
+    def add_new_high_score(self, score, size_index):
+        self.load_scores_from_file()
         self.get_user_name()
-        self.scores_db = self.add_score_to_score_db([self.player_name, score])
-        self.save_scores_to_file()
+        if self.player_name != None and self.player_name != "Enter your name: ":
+            self.scores_db[size_index] = self.add_score_to_score_db([self.player_name, score], size_index)
+            self.save_scores_to_file()
+            self.display_high_scores_window()
 

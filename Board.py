@@ -1,7 +1,6 @@
 import numpy as np
 import pygame
 import time
-from plot_high_score_class import HighScore
 
 
 class Board:
@@ -29,8 +28,9 @@ class Board:
              pygame.image.load("mine.png"), pygame.image.load("block.png"), pygame.image.load("flagged.png"),
              pygame.image.load("new_game_unpressed.png")]
 
-    def __init__(self, num_of_tiles_x, num_of_tiles_y, num_of_mines, tile_width=16, tile_height=16):
+    def __init__(self, size_index, num_of_tiles_x, num_of_tiles_y, num_of_mines, tile_width=16, tile_height=16):
         pygame.init()
+        self.size_index = size_index
         self.num_of_tiles_x = num_of_tiles_x
         self.num_of_tiles_y = num_of_tiles_y
         self.board_shape = (num_of_tiles_y, num_of_tiles_x)
@@ -68,7 +68,6 @@ class Board:
         pygame.display.set_caption("Minesweeper")
         return window
 
-
     def place_objects_in_array(self):
         # function shuffles an array in order to randomly generate locations of objects in the array
         num_of_elements = self.num_of_tiles_x * self.num_of_tiles_y
@@ -78,7 +77,6 @@ class Board:
         np.random.shuffle(joined_array)
         self.mines_array = joined_array.reshape(self.board_shape)
         return self.mines_array
-
 
     def count_num_of_touching_mines(self):
         # function receives an array with mines locations, calculates how many mines touch each empty cell
@@ -94,7 +92,6 @@ class Board:
         tile_x = (pixel_x - self.delta_from_left_x) // self.tile_width
         tile_y = (pixel_y - self.delta_from_top_y) // self.tile_height
         return tile_x, tile_y
-
 
     def is_valid_input(self, tile_x, tile_y, left_click, right_click):
         """
@@ -114,7 +111,6 @@ class Board:
                 return True
         if right_click:
             return True
-
 
     def flood_fill(self, tile_x, tile_y):
         # flood fill algorithm - https://en.wikipedia.org/wiki/Flood_fill
