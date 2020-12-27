@@ -32,7 +32,8 @@ class HighScore:
         self.player_name = None
 
     def add_score_to_score_db(self, new_score, size_index):
-        # function receives new_score in the form [name, score], inserts it into the score_db in the right order
+        # function receives new_score in the form [name, score], inserts it into the score_db in the right order and
+        # in the right size of
         scores_db = self.scores_db[size_index]
         # add to empty list
         if not scores_db:
@@ -56,7 +57,7 @@ class HighScore:
 
         # list is ordered from low to high
         else:
-            # lowest score, add to end of list
+            # highest score, add to end of list
             if new_score[-1] > scores_db[-1][-1]:
                 scores_db.append(new_score)
                 return scores_db
@@ -176,12 +177,12 @@ class HighScore:
 
         name_req_window.mainloop()
 
-    # func saves score_db to file,score_db is a list of lists
+    # func saves score_db to file,score_db is a list of lists of lists
     def save_scores_to_file(self):
         with open(self.filename, "wb") as score_file:
             pickle.dump(self.scores_db, score_file)
 
-    # func loads score_db from file as a correct data struct (list of lists)
+    # func loads score_db from file as a correct data struct (list of lists of lists)
     def load_scores_from_file(self):
         with open(self.filename, "rb") as score_file:
             self.scores_db = pickle.load(score_file)

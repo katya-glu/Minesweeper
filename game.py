@@ -10,7 +10,7 @@ pygame.init()
 # board size constants
 num_of_tiles_x_small_board = 8
 num_of_tiles_y_small_board = 8
-num_of_mines_small_board = 10
+num_of_mines_small_board = 8
 
 num_of_tiles_x_medium_board = 13
 num_of_tiles_y_medium_board = 15
@@ -145,8 +145,8 @@ def main(size_index, num_of_tiles_x, num_of_tiles_y, num_of_mines):  # TODO: add
                 tile_y = tile_xy[1]
 
                 # game state is updated according to the pressed button
-                if left_pressed or right_pressed:
-                    if not game_board.game_started:
+                if (left_released or right_released):
+                    if not game_board.game_started and left_released and not right_released:
                         game_board.game_start_time = time.time()
                         game_board.game_started = True
                     game_board.update_game_state(tile_x, tile_y, left_released, right_released)
@@ -168,3 +168,17 @@ def main(size_index, num_of_tiles_x, num_of_tiles_y, num_of_mines):  # TODO: add
 
 
 open_opening_window()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
